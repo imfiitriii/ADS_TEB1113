@@ -20,22 +20,24 @@ void deleteNode(Node *&head);
 
 int main()
 {
-    // Create initial nodes
+    // Create nodes
     Node *node1 = new Node();
     Node *node2 = new Node();
     Node *node3 = new Node();
 
     node1->data = "Aimar";
-    node1->prev = NULL;
-    node1->next = node2;
-
     node2->data = "Ahmad";
-    node2->prev = node1;
-    node2->next = node3;
-
     node3->data = "Anjana";
+
+    // Link them circularly
+    node1->next = node2;
+    node1->prev = node3;
+
+    node2->next = node3;
+    node2->prev = node1;
+
+    node3->next = node1;
     node3->prev = node2;
-    node3->next = NULL;
 
     Node *head = node1;
 
@@ -43,16 +45,16 @@ int main()
 
     do
     {
-        cout << "\n===== DOUBLY LINKED LIST MENU =====\n";
+        cout << "\n===== CIRCULAR DOUBLY LINKED LIST =====\n";
         cout << "1. Traverse Forward\n";
         cout << "2. Traverse Backward\n";
         cout << "3. Search\n";
         cout << "4. Access by Position\n";
-        cout << "5. Insert at End\n";
+        cout << "5. Insert End\n";
         cout << "6. Insert Anywhere\n";
-        cout << "7. Delete Node\n";
+        cout << "7. Delete\n";
         cout << "8. Exit\n";
-        cout << "Choice: ";
+        cout << "Choice : ";
         cin >> choice;
 
         switch (choice)
@@ -60,37 +62,29 @@ int main()
         case 1:
             traverseForward(head);
             break;
-
         case 2:
             traverseBackward(head);
             break;
-
         case 3:
             search(head);
             break;
-
         case 4:
             access(head);
             break;
-
         case 5:
             insertEnd(head);
             break;
-
         case 6:
             insertAnywhere(head);
             break;
-
         case 7:
             deleteNode(head);
             break;
-
         case 8:
-            cout << "Program Ended.\n";
+            cout << "Program Ended\n";
             break;
-
         default:
-            cout << "Invalid Choice.\n";
+            cout << "Invalid Choice\n";
         }
 
     } while (choice != 8);
@@ -101,15 +95,18 @@ int main()
 // ================= Traverse Forward =================
 void traverseForward(Node *head)
 {
+    if (head == NULL)
+        return;
+
     Node *temp = head;
 
-    while (temp != NULL)
+    do
     {
         cout << temp->data << " <-> ";
         temp = temp->next;
-    }
+    } while (temp != head);
 
-    cout << "NULL\n";
+    cout << "(HEAD)\n";
 }
 
 // ================= Traverse Backward =================
@@ -118,30 +115,30 @@ void traverseBackward(Node *head)
     if (head == NULL)
         return;
 
-    Node *temp = head;
+    Node *temp = head->prev;
 
-    while (temp->next != NULL)
-        temp = temp->next;
-
-    while (temp != NULL)
+    do
     {
         cout << temp->data << " <-> ";
         temp = temp->prev;
-    }
+    } while (temp != head->prev);
 
-    cout << "NULL\n";
+    cout << "(TAIL)\n";
 }
 
 // ================= Search =================
 void search(Node *head)
 {
+    if (head == NULL)
+        return;
+
     string target;
     cout << "Enter data: ";
     cin >> target;
 
     Node *temp = head;
 
-    while (temp != NULL)
+    do
     {
         if (temp->data == target)
         {
@@ -150,7 +147,8 @@ void search(Node *head)
         }
 
         temp = temp->next;
-    }
+
+    } while (temp != head);
 
     cout << "Not Found\n";
 }
@@ -164,18 +162,10 @@ void access(Node *head)
 
     Node *temp = head;
 
-    int count = 1;
-
-    while (temp != NULL && count < pos)
-    {
+    for (int i = 1; i < pos; i++)
         temp = temp->next;
-        count++;
-    }
 
-    if (temp == NULL)
-        cout << "Invalid Position\n";
-    else
-        cout << "Data = " << temp->data << endl;
+    cout << "Data = " << temp->data << endl;
 }
 
 // ================= Insert End =================
@@ -186,22 +176,15 @@ void insertEnd(Node *&head)
     cout << "Enter data: ";
     cin >> newNode->data;
 
-    newNode->next = NULL;
+    Node *tail = head->prev;
 
-    if (head == NULL)
-    {
-        newNode->prev = NULL;
-        head = newNode;
-        return;
-    }
+    newNode->next = head;
+    newNode->prev = tail;
 
-    Node *temp = head;
+    tail->next = newNode;
+    head->prev = newNode;
 
-    while (temp->next != NULL)
-        temp = temp->next;
-
-    temp->next = newNode;
-    newNode->prev = temp;
+    cout << "Inserted Successfully\n";
 }
 
 // ================= Insert Anywhere =================
@@ -219,40 +202,39 @@ void insertAnywhere(Node *&head)
 
     if (pos == 1)
     {
-        newNode->prev = NULL;
-        newNode->next = head;
+        Node *tail = head->prev;
 
-        if (head != NULL)
-            head->prev = newNode;
+        newNode->next = head;
+        newNode->prev = tail;
+
+        tail->next = newNode;
+        head->prev = newNode;
 
         head = newNode;
+
         return;
     }
 
     Node *temp = head;
 
-    for (int i = 1; i < pos - 1 && temp != NULL; i++)
+    for (int i = 1; i < pos - 1; i++)
         temp = temp->next;
-
-    if (temp == NULL)
-    {
-        cout << "Invalid Position\n";
-        delete newNode;
-        return;
-    }
 
     newNode->next = temp->next;
     newNode->prev = temp;
 
-    if (temp->next != NULL)
-        temp->next->prev = newNode;
-
+    temp->next->prev = newNode;
     temp->next = newNode;
+
+    cout << "Inserted Successfully\n";
 }
 
 // ================= Delete =================
 void deleteNode(Node *&head)
 {
+    if (head == NULL)
+        return;
+
     string target;
 
     cout << "Enter data to delete: ";
@@ -260,31 +242,32 @@ void deleteNode(Node *&head)
 
     Node *current = head;
 
-    while (current != NULL && current->data != target)
+    do
+    {
+        if (current->data == target)
+        {
+            if (current->next == current)
+            {
+                delete current;
+                head = NULL;
+                return;
+            }
+
+            current->prev->next = current->next;
+            current->next->prev = current->prev;
+
+            if (current == head)
+                head = current->next;
+
+            delete current;
+
+            cout << "Deleted Successfully\n";
+            return;
+        }
+
         current = current->next;
 
-    if (current == NULL)
-    {
-        cout << "Not Found\n";
-        return;
-    }
+    } while (current != head);
 
-    if (current == head)
-    {
-        head = current->next;
-
-        if (head != NULL)
-            head->prev = NULL;
-    }
-    else
-    {
-        current->prev->next = current->next;
-
-        if (current->next != NULL)
-            current->next->prev = current->prev;
-    }
-
-    delete current;
-
-    cout << "Deleted Successfully\n";
+    cout << "Data Not Found\n";
 }
