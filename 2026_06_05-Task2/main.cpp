@@ -96,7 +96,7 @@ void medium()
     }
 }
 
-// HARD QUESTION : FIND PAIR IN MATRIX
+// HARD QUESTION : FIND A SPECIFIC PAIR IN MATRIX
 void hard()
 {
     int n;
